@@ -1,0 +1,184 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.74/Build/Cesium/Cesium.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.5/jquery.csv.js"></script>
+    
+
+
+    <!----------- THIS SECTION ADD TO MITIGATE CORS ISSUES WHEN LOADING KML FILES ----------->
+    <!-- Workaround covered here: https://github.com/CesiumGS/cesium/issues/8819 -->
+    <script>
+    // Required for direct inflate/default inclusion to work.
+    window.zip = {};
+    </script>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.68/Build/Cesium/ThirdParty/Workers/inflate.js"></script>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.68/Build/Cesium/ThirdParty/Workers/deflate.js"></script>
+
+    <!----------- THIS SECTION ADD TO MITIGATE CORS ISSUES WHEN LOADING KML FILES ----------->
+
+
+
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.74/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+</head>
+<body>
+  <div id="cesiumContainer" style="width: 1600px; height:800px"></div>
+  <script>
+    
+let buoy = 386840
+
+Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNDk5OWI1My03ZTQwLTQwM2YtOWY4Zi1iNmNlOWE5MmU5MDUiLCJpZCI6MTYyNjUsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1NzAwMzQ5MDF9.CX3tuxQ28nB5MarMvr9ktSq6OUwTzf3JUc9FoQDo3gQ';
+
+//----------- THIS SECTION ADD TO MITIGATE CORS ISSUES WHEN LOADING KML FILES -----------//
+
+//Disable web workers for zip library
+Cesium.zip.useWebWorkers = false;
+//Grab imported inflate/deflate classes and make Cesium's
+//internal zip library use them
+Cesium.zip.Inflater = window.zip.Inflater;
+Cesium.zip.Deflater = window.zip.Deflater;
+
+//----------- THIS SECTION ADD TO MITIGATE CORS ISSUES WHEN LOADING KML FILES -----------//
+
+
+// create URL for data using the "buoy" variable above
+let url1 = '/DT/SIMB3_'
+let url2 = String(buoy)
+let url3 = url1.concat(url2).concat('_Drift_Track.csv')
+url3 = 'czml-test.csv'
+
+$.ajax({
+// url: "http:localhost:8080/DT/SIMB3_386840_Drift_Track.csv",
+url: url3,
+async: false,
+success: function (csvd) {
+data = $.csv.toArray(csvd);
+},
+dataType: "text",
+});
+
+$.ajax({
+// url: "http:localhost:8080/DT/SIMB3_386840_Drift_Track.csv",
+url: "czml-test2.csv",
+async: false,
+success: function (csvd) {
+data2 = $.csv.toArray(csvd);
+},
+dataType: "text",
+});
+
+// convert data strings to numbers
+data = data.map(Number)
+data2 = data2.map(Number)
+
+
+var czml1 = [
+  {
+    id: "document",
+    name: "CZML Path",
+    version: "1.0",
+    clock: {
+      interval: "2019-09-19T10:00:00Z/2020-07-20T15:00:00Z",
+      currentTime: "2019-09-19T10:00:00Z",
+      multiplier: 1,
+      step: "SYSTEM_CLOCK_DEPENDENT"
+    },
+  },
+  {
+    id: "path",
+    name: "buoy drift path",
+    description:
+      "<p>Hang gliding flight log data from Daniel H. Friedman.<br>Icon created by Larisa Skosyrska from the Noun Project</p>",
+    availability: "2019-09-19T10:00:00Z/2020-07-20T16:00:00Z",
+    path: {
+      material: {
+        polylineOutline: {
+          color: {
+            rgba: [41, 123, 192, 255],
+          },
+        },
+      },
+      width: 7,
+      leadTime: 10,
+    // this value is key for not over interpolating
+      resolution: 3600,
+    },
+    billboard: {
+        image: [{uri: "simb_crosshair.png"}],
+        scale: 1,
+        eyeOffset: {
+        cartesian: [0.0, 0.0, -10.0],
+      },
+    },
+    position: {
+      epoch: "2019-09-19T09:00:00Z",
+    cartographicDegrees: data
+},
+  },
+];
+
+
+var czml2 = [
+  {
+    id: "document",
+    name: "CZML Path",
+    version: "1.0",
+    clock: {
+      interval: "2019-09-19T10:00:00Z/2020-07-20T15:00:00Z",
+      currentTime: "2019-09-19T10:00:00Z",
+      multiplier: 1,
+      step: "SYSTEM_CLOCK_DEPENDENT"
+    },
+  },
+  {
+    id: "path",
+    name: "buoy drift path",
+    description:
+      "<p>Hang gliding flight log data from Daniel H. Friedman.<br>Icon created by Larisa Skosyrska from the Noun Project</p>",
+    availability: "2019-09-19T10:00:00Z/2020-07-20T16:00:00Z",
+    path: {
+      material: {
+        polylineOutline: {
+          color: {
+            rgba: [100, 43, 29, 255],
+          },
+        },
+      },
+      width: 7,
+      leadTime: 10,
+    // this value is key for not over interpolating
+      resolution: 14400,
+    },
+    billboard: {
+        image: [{uri: "simb_crosshair.png"}],
+        scale: 1,
+        eyeOffset: {
+        cartesian: [0.0, 0.0, -10.0],
+      },
+    },
+    position: {
+      epoch: "2019-09-19T09:00:00Z",
+    cartographicDegrees: data2
+},
+  },
+];
+
+
+var viewer = new Cesium.Viewer("cesiumContainer", {
+
+  shouldAnimate: true,
+});
+
+viewer.dataSources
+  .add(Cesium.CzmlDataSource.load(czml1))
+
+viewer.dataSources
+  .add(Cesium.CzmlDataSource.load(czml2))
+
+viewer.dataSources.add(Cesium.KmlDataSource.load('masie_ice_r00_v01_2020317_1km.kmz'))
+
+ ;
+
+
+</script>
